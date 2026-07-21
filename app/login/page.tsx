@@ -3,7 +3,7 @@
 import { signIn, useSession } from "next-auth/react";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Github, Mail } from "lucide-react";
+import { GitBranch, Mail } from "lucide-react";
 
 export default function LoginPage() {
   const { data: session, status } = useSession();
@@ -46,7 +46,7 @@ export default function LoginPage() {
             onClick={() => signIn("github")}
             className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-[#24292F] hover:bg-[#24292F]/90 text-white rounded-lg transition-colors font-medium shadow-sm"
           >
-            <Github className="w-5 h-5" />
+            <GitBranch className="w-5 h-5" />
             Continue with GitHub
           </button>
         </div>
