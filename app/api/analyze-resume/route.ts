@@ -3,8 +3,6 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { streamText } from "ai";
 import { google } from "@ai-sdk/google";
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const pdfParse = require("pdf-parse");
 import connectToDatabase from "@/lib/db";
 import Profile from "@/models/Profile";
 import Resume from "@/models/Resume";
@@ -29,6 +27,9 @@ export async function POST(req: NextRequest) {
     // Read the PDF
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
+    
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const pdfParse = require("pdf-parse");
     const pdfData = await pdfParse(buffer);
     const resumeText = pdfData.text;
 
