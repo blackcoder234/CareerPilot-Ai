@@ -4,6 +4,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Save } from "lucide-react";
+import toast from "react-hot-toast";
 
 export default function ProfilePage() {
   const { data: session, status } = useSession();
@@ -12,7 +13,6 @@ export default function ProfilePage() {
   const [targetRole, setTargetRole] = useState("");
   const [skills, setSkills] = useState("");
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState({ text: "", type: "" });
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -30,7 +30,7 @@ export default function ProfilePage() {
             setSkills(data.profile.skills ? data.profile.skills.join(", ") : "");
           }
         })
-        .catch(err => console.error("Failed to fetch profile", err));
+        .catch(err => toast.error("Failed to fetch profile: " + err.message));
     }
   }, [session]);
 
@@ -54,12 +54,13 @@ export default function ProfilePage() {
         body: JSON.stringify({ targetRole, skills }),
       });
       if (res.ok) {
-        setMessage({ text: "Profile saved successfully!", type: "success" });
+        toast.success("Profile saved successfully!");
       } else {
-        setMessage({ text: "Failed to save profile.", type: "error" });
+        const errorData = await res.json();
+        toast.error(errorData.error || "Failed to save profile.");
       }
-    } catch (e) {
-      setMessage({ text: "An error occurred.", type: "error" });
+    } catch (e: any) {
+      toast.error(e.message || "An error occurred.");
     }
     setLoading(false);
   };
@@ -120,11 +121,7 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        {message.text && (
-          <div className={`p-4 rounded-lg text-sm font-medium ${message.type === 'success' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'}`}>
-            {message.text}
-          </div>
-        )}
+
 
         <div className="pt-4 flex justify-end">
           <button 

@@ -4,6 +4,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useRef } from "react";
 import { UploadCloud, FileText, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
+import toast from "react-hot-toast";
 
 export default function ResumeAnalyzerPage() {
   const { data: session, status } = useSession();
@@ -12,7 +13,6 @@ export default function ResumeAnalyzerPage() {
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [feedback, setFeedback] = useState<string>("");
-  const [error, setError] = useState<string>("");
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -26,12 +26,11 @@ export default function ResumeAnalyzerPage() {
     if (e.target.files && e.target.files[0]) {
       const selectedFile = e.target.files[0];
       if (selectedFile.type !== "application/pdf") {
-        setError("Please upload a valid PDF file.");
+        toast.error("Please upload a valid PDF file.");
         setFile(null);
         return;
       }
       setFile(selectedFile);
-      setError("");
       setFeedback("");
     }
   };
@@ -40,7 +39,6 @@ export default function ResumeAnalyzerPage() {
     if (!file) return;
 
     setLoading(true);
-    setError("");
     setFeedback("");
 
     const formData = new FormData();
@@ -71,8 +69,9 @@ export default function ResumeAnalyzerPage() {
           setFeedback((prev) => prev + chunk);
         }
       }
+      toast.success("Analysis complete!");
     } catch (err: any) {
-      setError(err.message || "An unexpected error occurred");
+      toast.error(err.message || "An unexpected error occurred");
     } finally {
       setLoading(false);
     }
@@ -128,12 +127,7 @@ export default function ResumeAnalyzerPage() {
             {loading ? "Analyzing Document..." : "Analyze Resume"}
           </button>
 
-          {error && (
-            <div className="flex items-center gap-2 text-red-600 bg-red-50 dark:bg-red-900/20 p-4 rounded-xl border border-red-200 dark:border-red-900/50">
-              <AlertCircle className="w-5 h-5 flex-shrink-0" />
-              <p className="text-sm font-medium">{error}</p>
-            </div>
-          )}
+
         </div>
 
         {/* Right Column: AI Feedback Area */}

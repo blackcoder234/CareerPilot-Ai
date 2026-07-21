@@ -8,6 +8,8 @@ export const metadata: Metadata = {
   description: "Your Personal AI Career Advisor",
 };
 
+import { Toaster } from "react-hot-toast";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -17,6 +19,7 @@ export default function RootLayout({
     <html lang="en">
       <body className="antialiased min-h-screen flex flex-col">
         <AuthProvider>
+          <Toaster position="top-right" toastOptions={{ duration: 4000 }} />
           <Navbar />
           <div className="flex-1 flex flex-col">
             {children}
