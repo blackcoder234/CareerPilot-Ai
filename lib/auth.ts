@@ -7,17 +7,18 @@ import User from "@/models/User";
 export const authOptions: NextAuthOptions = {
   providers: [
     GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID || "",
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
+      clientId: process.env.GOOGLE_CLIENT_ID || "missing_client_id",
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET || "missing_client_secret",
     }),
     GithubProvider({
-      clientId: process.env.GITHUB_ID || "",
-      clientSecret: process.env.GITHUB_SECRET || "",
+      clientId: process.env.GITHUB_ID || "missing_github_id",
+      clientSecret: process.env.GITHUB_SECRET || "missing_github_secret",
     }),
   ],
   session: {
     strategy: "jwt",
   },
+  secret: process.env.NEXTAUTH_SECRET || "fallback_secret_for_development_only",
   pages: {
     signIn: "/login",
   },
@@ -30,15 +31,19 @@ export const authOptions: NextAuthOptions = {
           
           if (!existingUser) {
             await User.create({
-              name: user.name,
+              name: user.name || "Unknown User",
               email: user.email,
               image: user.image,
             });
           }
           return true;
         } catch (error) {
-          console.error("Error saving user", error);
-          return false;
+          console.error("Error saving user to DB:", error);
+          if (!process.env.MONGODB_URI) {
+             console.warn("Bypassing DB save because MONGODB_URI is not set.");
+             return true; 
+          }
+          return false; // Reject signin if DB fails for other reasons
         }
       }
       return true;
