@@ -11,12 +11,28 @@ export default function ProfilePage() {
   
   const [targetRole, setTargetRole] = useState("");
   const [skills, setSkills] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState({ text: "", type: "" });
 
   useEffect(() => {
     if (status === "unauthenticated") {
       router.push("/login");
     }
   }, [status, router]);
+
+  useEffect(() => {
+    if (session) {
+      fetch("/api/profile")
+        .then(res => res.json())
+        .then(data => {
+          if (data.profile) {
+            setTargetRole(data.profile.targetRole || "");
+            setSkills(data.profile.skills ? data.profile.skills.join(", ") : "");
+          }
+        })
+        .catch(err => console.error("Failed to fetch profile", err));
+    }
+  }, [session]);
 
   if (status === "loading") {
     return (
@@ -27,6 +43,26 @@ export default function ProfilePage() {
   }
 
   if (!session) return null;
+
+  const handleSave = async () => {
+    setLoading(true);
+    setMessage({ text: "", type: "" });
+    try {
+      const res = await fetch("/api/profile", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ targetRole, skills }),
+      });
+      if (res.ok) {
+        setMessage({ text: "Profile saved successfully!", type: "success" });
+      } else {
+        setMessage({ text: "Failed to save profile.", type: "error" });
+      }
+    } catch (e) {
+      setMessage({ text: "An error occurred.", type: "error" });
+    }
+    setLoading(false);
+  };
 
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 w-full">
@@ -67,7 +103,7 @@ export default function ProfilePage() {
                 value={targetRole}
                 onChange={(e) => setTargetRole(e.target.value)}
                 placeholder="e.g. Senior Frontend Engineer"
-                className="w-full px-4 py-2 bg-white dark:bg-black border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                className="w-full px-4 py-2 bg-white dark:bg-black border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
               />
             </div>
 
@@ -78,16 +114,30 @@ export default function ProfilePage() {
                 value={skills}
                 onChange={(e) => setSkills(e.target.value)}
                 placeholder="e.g. React, Node.js, Python"
-                className="w-full px-4 py-2 bg-white dark:bg-black border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                className="w-full px-4 py-2 bg-white dark:bg-black border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
               />
             </div>
           </div>
         </div>
 
+        {message.text && (
+          <div className={`p-4 rounded-lg text-sm font-medium ${message.type === 'success' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'}`}>
+            {message.text}
+          </div>
+        )}
+
         <div className="pt-4 flex justify-end">
-          <button className="flex items-center gap-2 px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-medium">
-            <Save className="w-4 h-4" />
-            Save Changes
+          <button 
+            onClick={handleSave}
+            disabled={loading}
+            className="flex items-center gap-2 px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-lg transition-colors font-medium"
+          >
+            {loading ? (
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+            ) : (
+              <Save className="w-4 h-4" />
+            )}
+            {loading ? "Saving..." : "Save Changes"}
           </button>
         </div>
       </div>
