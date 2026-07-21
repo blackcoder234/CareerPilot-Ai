@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useSession, signOut } from "next-auth/react";
 import { LogOut, User as UserIcon, LayoutDashboard } from "lucide-react";
 
@@ -12,8 +13,9 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
           <div className="flex-shrink-0 flex items-center">
-            <Link href="/" className="text-xl font-bold tracking-tight">
-              CareerPilot<span className="text-blue-600">AI</span>
+            <Link href="/" className="flex items-center gap-2 text-xl font-bold tracking-tight">
+              <Image src="/logo.png" alt="CareerPilot AI Logo" width={32} height={32} className="rounded-lg" />
+              <span>CareerPilot<span className="text-blue-600">AI</span></span>
             </Link>
           </div>
           <div className="flex items-center space-x-6">

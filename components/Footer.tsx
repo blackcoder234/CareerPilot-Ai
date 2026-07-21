@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Bot } from "lucide-react";
+import Image from "next/image";
 
 export default function Footer() {
   return (
@@ -9,8 +9,8 @@ export default function Footer() {
           
           <div className="md:col-span-1">
             <Link href="/" className="flex items-center gap-2 mb-4">
-              <div className="bg-blue-600 p-2 rounded-lg">
-                <Bot className="w-6 h-6 text-white" />
+              <div className="rounded-lg overflow-hidden flex items-center justify-center">
+                <Image src="/logo.png" alt="CareerPilot AI Logo" width={36} height={36} className="rounded-lg" />
               </div>
               <span className="text-xl font-bold tracking-tight">CareerPilot AI</span>
             </Link>
