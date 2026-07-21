@@ -46,7 +46,6 @@ export default function ProfilePage() {
 
   const handleSave = async () => {
     setLoading(true);
-    setMessage({ text: "", type: "" });
     try {
       const res = await fetch("/api/profile", {
         method: "POST",
