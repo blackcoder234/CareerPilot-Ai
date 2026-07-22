@@ -28,6 +28,17 @@ export async function POST(req: NextRequest) {
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
     
+    // Polyfill for pdf-parse (which uses pdf.js and expects browser globals)
+    if (typeof global.DOMMatrix === 'undefined') {
+      (global as any).DOMMatrix = class DOMMatrix {};
+    }
+    if (typeof global.Path2D === 'undefined') {
+      (global as any).Path2D = class Path2D {};
+    }
+    if (typeof global.ImageData === 'undefined') {
+      (global as any).ImageData = class ImageData {};
+    }
+
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const pdfParse = require("pdf-parse");
     const pdfData = await pdfParse(buffer);
