@@ -72,7 +72,7 @@ export async function POST(req: NextRequest) {
 
     // Stream the LLM response
     const result = streamText({
-      model: google("gemini-1.5-flash-latest"),
+      model: google("gemini-flash-latest"),
       system: systemPrompt,
       prompt: `Here is the text extracted from the user's resume:\n\n${resumeText}`,
       async onFinish({ text }) {
