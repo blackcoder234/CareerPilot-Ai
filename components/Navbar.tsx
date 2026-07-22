@@ -20,7 +20,13 @@ export default function Navbar() {
               <span>CareerPilot<span className="text-blue-600">AI</span></span>
             </Link>
           </div>
-          <div className="flex items-center space-x-6">
+          <div className="hidden md:flex items-center space-x-8">
+            <Link href="/resume" className="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Resume Analyzer</Link>
+            <Link href="/interview" className="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Mock Interviews</Link>
+            <Link href="/jobs" className="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Job Matches</Link>
+            <Link href="/coding" className="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Coding Arena</Link>
+          </div>
+          <div className="flex items-center space-x-4">
             {session ? (
               <Menu as="div" className="relative inline-block text-left">
                 <div>
