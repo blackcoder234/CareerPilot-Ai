@@ -161,6 +161,20 @@ export default function ResumeAnalyzerPage() {
               </div>
             )}
           </div>
+          {/* Temporary Test Button for Agent */}
+          <div className="flex justify-center mt-4">
+            <button
+              onClick={async () => {
+                const response = await fetch('/resume.pdf');
+                const blob = await response.blob();
+                const testFile = new File([blob], "Amarnath Bera - Full Stack Developer Resume.pdf", { type: "application/pdf" });
+                setFile(testFile);
+              }}
+              className="px-4 py-2 bg-purple-600 text-white rounded-lg text-sm font-bold"
+            >
+              Load Test Resume
+            </button>
+          </div>
 
           <button 
             onClick={analyzeResume}

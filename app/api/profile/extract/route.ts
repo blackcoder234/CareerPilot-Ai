@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { generateObject } from "ai";
 import { google } from "@ai-sdk/google";
 import { z } from "zod";
+import PDFParser from "pdf2json";
 
 export const runtime = "nodejs";
 
@@ -25,21 +26,15 @@ export async function POST(req: NextRequest) {
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
     
-    // Polyfill for pdf-parse
-    if (typeof global.DOMMatrix === 'undefined') {
-      (global as any).DOMMatrix = class DOMMatrix {};
-    }
-    if (typeof global.Path2D === 'undefined') {
-      (global as any).Path2D = class Path2D {};
-    }
-    if (typeof global.ImageData === 'undefined') {
-      (global as any).ImageData = class ImageData {};
-    }
-
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const pdfParse = require("pdf-parse");
-    const pdfData = await pdfParse(buffer);
-    const resumeText = pdfData.text;
+    // Parse PDF using pdf2json
+    const resumeText = await new Promise<string>((resolve, reject) => {
+      const pdfParser = new (PDFParser as any)(null, 1);
+      pdfParser.on("pdfParser_dataError", (errData: any) => reject(errData.parserError));
+      pdfParser.on("pdfParser_dataReady", () => {
+        resolve((pdfParser as any).getRawTextContent());
+      });
+      pdfParser.parseBuffer(buffer);
+    });
 
     const { object } = await generateObject({
       model: google("gemini-1.5-flash"),
