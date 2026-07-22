@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
     });
 
     const { object } = await generateObject({
-      model: google("gemini-1.5-flash"),
+      model: google("gemini-1.5-flash-latest"),
       schema: z.object({
         skills: z.array(z.string()).describe("A list of top technical and soft skills extracted from the resume"),
         experience: z.array(z.string()).describe("A list of work experiences formatted cleanly, e.g. 'Software Engineer at Google (2020-Present) - Key achievement'"),
