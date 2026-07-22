@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import pdfParse from "pdf-parse";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { generateObject } from "ai";
@@ -36,9 +37,6 @@ export async function POST(req: NextRequest) {
       (global as any).ImageData = class ImageData {};
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const pdfParseModule = require("pdf-parse");
-    const pdfParse = pdfParseModule.default || pdfParseModule;
     const pdfData = await pdfParse(buffer);
     const resumeText = pdfData.text;
 
