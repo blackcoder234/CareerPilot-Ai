@@ -11,8 +11,8 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { targetRole, skills } = await req.json();
-    const skillsArray = skills.split(",").map((s: string) => s.trim()).filter((s: string) => s !== "");
+    const { targetRole, skills, experience, education } = await req.json();
+    const skillsArray = typeof skills === 'string' ? skills.split(",").map((s: string) => s.trim()).filter((s: string) => s !== "") : (skills || []);
 
     await connectToDatabase();
     
@@ -21,6 +21,8 @@ export async function POST(req: Request) {
       { 
         targetRole,
         skills: skillsArray,
+        ...(experience && { experience }),
+        ...(education && { education }),
       },
       { upsert: true, new: true }
     );

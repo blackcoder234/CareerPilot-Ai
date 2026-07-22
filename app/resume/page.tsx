@@ -3,7 +3,7 @@
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useRef } from "react";
-import { UploadCloud, FileText, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
+import { UploadCloud, FileText, CheckCircle, AlertCircle, Loader2, Sparkles } from "lucide-react";
 import toast from "react-hot-toast";
 
 export default function ResumeAnalyzerPage() {
@@ -12,7 +12,9 @@ export default function ResumeAnalyzerPage() {
 
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
+  const [extracting, setExtracting] = useState(false);
   const [feedback, setFeedback] = useState<string>("");
+  const [analysisComplete, setAnalysisComplete] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -40,6 +42,7 @@ export default function ResumeAnalyzerPage() {
 
     setLoading(true);
     setFeedback("");
+    setAnalysisComplete(false);
 
     const formData = new FormData();
     formData.append("file", file);
@@ -69,11 +72,52 @@ export default function ResumeAnalyzerPage() {
           setFeedback((prev) => prev + chunk);
         }
       }
+      setAnalysisComplete(true);
       toast.success("Analysis complete!");
     } catch (err: any) {
       toast.error(err.message || "An unexpected error occurred");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleAutoFillProfile = async () => {
+    if (!file) return;
+    setExtracting(true);
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const response = await fetch("/api/profile/extract", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) throw new Error("Extraction failed");
+
+      const data = await response.json();
+      
+      // Save it to profile
+      const saveRes = await fetch("/api/profile", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          skills: data.profileData.skills.join(", "),
+          experience: data.profileData.experience,
+          education: data.profileData.education,
+        }),
+      });
+
+      if (saveRes.ok) {
+        toast.success("Profile successfully updated from resume!");
+        router.push("/profile");
+      } else {
+        throw new Error("Failed to save profile");
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Failed to auto-fill profile");
+    } finally {
+      setExtracting(false);
     }
   };
 
@@ -149,6 +193,28 @@ export default function ResumeAnalyzerPage() {
               </div>
             )}
           </div>
+          
+          {analysisComplete && (
+            <div className="bg-blue-50 dark:bg-blue-900/10 p-4 border-t border-blue-100 dark:border-blue-900/30 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="bg-blue-600 p-2 rounded-full text-white">
+                  <Sparkles className="w-5 h-5" />
+                </div>
+                <div>
+                  <h4 className="font-bold text-blue-900 dark:text-blue-100 text-sm">Update Profile?</h4>
+                  <p className="text-xs text-blue-700 dark:text-blue-300">We can auto-fill your Experience, Education, and Skills using AI.</p>
+                </div>
+              </div>
+              <button 
+                onClick={handleAutoFillProfile}
+                disabled={extracting}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-lg font-semibold text-sm transition-colors flex items-center gap-2 shadow-sm"
+              >
+                {extracting ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+                {extracting ? "Extracting..." : "Auto-Fill Profile"}
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>

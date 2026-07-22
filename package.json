@@ -10,16 +10,19 @@
   },
   "dependencies": {
     "@ai-sdk/google": "^4.0.20",
+    "@headlessui/react": "^2.2.10",
     "ai": "^7.0.33",
     "bcryptjs": "^3.0.3",
     "lucide-react": "^1.25.0",
     "mongoose": "^9.8.0",
     "next": "16.2.10",
     "next-auth": "^4.24.15",
+    "nextjs-toploader": "^3.9.17",
     "pdf-parse": "^2.4.5",
     "react": "19.2.4",
     "react-dom": "19.2.4",
-    "react-hot-toast": "^2.6.0"
+    "react-hot-toast": "^2.6.0",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
