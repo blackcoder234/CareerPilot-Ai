@@ -6,6 +6,7 @@ import { useSession, signOut } from "next-auth/react";
 import { LogOut, User as UserIcon, LayoutDashboard, ChevronDown } from "lucide-react";
 import { Menu, Transition } from '@headlessui/react';
 import { Fragment } from 'react';
+import ThemeToggle from './ThemeToggle';
 
 export default function Navbar() {
   const { data: session } = useSession();
@@ -27,6 +28,7 @@ export default function Navbar() {
             <Link href="/coding" className="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Coding Arena</Link>
           </div>
           <div className="flex items-center space-x-4">
+            <ThemeToggle />
             {session ? (
               <Menu as="div" className="relative inline-block text-left">
                 <div>
