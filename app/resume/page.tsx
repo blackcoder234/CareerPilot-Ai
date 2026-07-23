@@ -3,7 +3,7 @@
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useRef } from "react";
-import { UploadCloud, FileText, CheckCircle, AlertCircle, Loader2, Sparkles } from "lucide-react";
+import { UploadCloud, FileText, CheckCircle, AlertCircle, Loader2, Sparkles, ArrowRight, Zap, Target } from "lucide-react";
 import toast from "react-hot-toast";
 
 export default function ResumeAnalyzerPage() {
@@ -34,6 +34,7 @@ export default function ResumeAnalyzerPage() {
       }
       setFile(selectedFile);
       setFeedback("");
+      setAnalysisComplete(false);
     }
   };
 
@@ -121,114 +122,203 @@ export default function ResumeAnalyzerPage() {
     }
   };
 
-  if (status === "loading" || !session) return null;
+  if (status === "loading" || !session) {
+    return (
+      <div className="flex-1 flex items-center justify-center min-h-screen bg-gray-50 dark:bg-[#0B0F19]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+      </div>
+    );
+  }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <div className="mb-10 text-center max-w-2xl mx-auto">
-        <h1 className="text-4xl font-extrabold tracking-tight mb-4">AI Resume Analyzer</h1>
-        <p className="text-gray-500 dark:text-gray-400 text-lg">
-          Upload your resume and get instant, actionable feedback based on your career profile.
-        </p>
+    <div className="min-h-screen bg-gray-50 dark:bg-[#0B0F19] text-gray-900 dark:text-gray-100 pb-20">
+      
+      {/* Premium Header */}
+      <div className="relative overflow-hidden bg-white dark:bg-[#131B2C] border-b border-gray-200 dark:border-gray-800 pt-16 pb-12">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[300px] bg-indigo-500/10 blur-[100px] rounded-full pointer-events-none"></div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-100 dark:border-indigo-800 text-indigo-600 dark:text-indigo-400 text-sm font-bold mb-6">
+            <Zap className="w-4 h-4" /> Powered by Gemini Flash
+          </div>
+          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-6 text-transparent bg-clip-text bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-400">
+            AI Resume Analyzer
+          </h1>
+          <p className="text-gray-500 dark:text-gray-400 text-lg max-w-2xl mx-auto leading-relaxed">
+            Upload your resume to get instant, actionable feedback. We scan for ATS compatibility, keyword optimization, and impactful achievements.
+          </p>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        
-        {/* Left Column: Upload Area */}
-        <div className="flex flex-col h-full space-y-6">
-          <div 
-            className="flex-1 min-h-[300px] border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-3xl bg-gray-50 dark:bg-gray-900/50 flex flex-col items-center justify-center p-8 transition-colors hover:bg-gray-100 dark:hover:bg-gray-900 cursor-pointer"
-            onClick={() => fileInputRef.current?.click()}
-          >
-            <input 
-              type="file" 
-              accept=".pdf"
-              className="hidden" 
-              ref={fileInputRef}
-              onChange={handleFileChange}
-            />
-            <div className="w-20 h-20 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mb-6">
-              <UploadCloud className="w-10 h-10 text-blue-600 dark:text-blue-400" />
-            </div>
-            <h3 className="text-xl font-bold mb-2">Upload your Resume</h3>
-            <p className="text-gray-500 text-sm mb-6 text-center max-w-xs">
-              Drag and drop your PDF resume here, or click to browse files.
-            </p>
-            {file && (
-              <div className="flex items-center gap-2 text-sm font-medium text-green-600 bg-green-50 dark:bg-green-900/20 px-4 py-2 rounded-full border border-green-200 dark:border-green-900/50">
-                <CheckCircle className="w-4 h-4" />
-                {file.name}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
+          
+          {/* Left Column: Upload Area (col-span-5) */}
+          <div className="lg:col-span-5 flex flex-col h-full space-y-6">
+            <div className="bg-white dark:bg-[#131B2C] border border-gray-200 dark:border-gray-800 rounded-3xl p-6 sm:p-8 shadow-sm relative overflow-hidden group transition-shadow hover:shadow-lg">
+              
+              {/* Animated Border Gradient on Hover */}
+              <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 opacity-0 group-hover:opacity-10 transition-opacity duration-500 pointer-events-none"></div>
+              
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-bold">1. Upload Document</h3>
+                {file && <CheckCircle className="w-6 h-6 text-green-500" />}
               </div>
-            )}
-          </div>
-          {/* Temporary Test Button for Agent */}
-          <div className="flex justify-center mt-4">
-            <button
-              onClick={async () => {
-                const response = await fetch('/resume.pdf');
-                const blob = await response.blob();
-                const testFile = new File([blob], "Amarnath Bera - Full Stack Developer Resume.pdf", { type: "application/pdf" });
-                setFile(testFile);
-              }}
-              className="px-4 py-2 bg-purple-600 text-white rounded-lg text-sm font-bold"
+
+              <div 
+                className={`relative flex-1 min-h-[250px] border-2 border-dashed rounded-2xl flex flex-col items-center justify-center p-8 transition-all duration-300 cursor-pointer overflow-hidden ${
+                  file 
+                    ? 'border-indigo-300 dark:border-indigo-700 bg-indigo-50/50 dark:bg-indigo-900/10' 
+                    : 'border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/30 hover:border-indigo-400 dark:hover:border-indigo-500 hover:bg-indigo-50/30 dark:hover:bg-indigo-900/10'
+                }`}
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <input 
+                  type="file" 
+                  accept=".pdf"
+                  className="hidden" 
+                  ref={fileInputRef}
+                  onChange={handleFileChange}
+                />
+                
+                <div className={`w-20 h-20 rounded-full flex items-center justify-center mb-6 transition-all duration-300 ${
+                  file ? 'bg-indigo-100 dark:bg-indigo-900/40 scale-110' : 'bg-white dark:bg-gray-800 shadow-sm group-hover:scale-110 group-hover:shadow-md'
+                }`}>
+                  {file ? (
+                    <FileText className="w-10 h-10 text-indigo-600 dark:text-indigo-400" />
+                  ) : (
+                    <UploadCloud className="w-10 h-10 text-gray-400 group-hover:text-indigo-500 transition-colors" />
+                  )}
+                </div>
+                
+                {file ? (
+                  <div className="text-center animate-in fade-in slide-in-from-bottom-2">
+                    <p className="text-lg font-bold text-gray-900 dark:text-white mb-1 truncate max-w-[200px]">{file.name}</p>
+                    <p className="text-sm text-indigo-600 dark:text-indigo-400 font-medium">Ready to analyze</p>
+                  </div>
+                ) : (
+                  <div className="text-center">
+                    <p className="text-lg font-bold text-gray-900 dark:text-white mb-2">Drag & drop PDF</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 max-w-[200px]">
+                      or click to browse from your computer
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Temporary Test Button for Agent */}
+              <div className="flex justify-center mt-6">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    const testFile = new File(["dummy content"], "Amarnath Bera - Full Stack Developer Resume.pdf", { type: "application/pdf" });
+                    setFile(testFile);
+                    setFeedback("");
+                    setAnalysisComplete(false);
+                  }}
+                  className="text-xs text-gray-400 hover:text-indigo-500 underline underline-offset-2 transition-colors"
+                >
+                  Load Test Resume
+                </button>
+              </div>
+            </div>
+
+            <button 
+              onClick={analyzeResume}
+              disabled={!file || loading}
+              className="relative overflow-hidden w-full py-5 rounded-2xl font-bold text-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 shadow-xl group flex justify-center items-center gap-3 bg-gradient-to-r from-gray-900 to-black dark:from-white dark:to-gray-200 text-white dark:text-black hover:scale-[1.02]"
             >
-              Load Test Resume
+              {/* Shine effect on hover */}
+              <div className="absolute top-0 -inset-full h-full w-1/2 z-5 block transform -skew-x-12 bg-gradient-to-r from-transparent to-white opacity-20 group-hover:animate-shine"></div>
+              
+              {loading ? <Loader2 className="w-6 h-6 animate-spin" /> : <Target className="w-6 h-6 group-hover:rotate-12 transition-transform" />}
+              {loading ? "Analyzing Document..." : "Analyze Resume"}
             </button>
           </div>
 
-          <button 
-            onClick={analyzeResume}
-            disabled={!file || loading}
-            className="w-full py-4 bg-black dark:bg-white text-white dark:text-black rounded-xl font-bold text-lg disabled:opacity-50 hover:scale-[1.02] transition-transform flex justify-center items-center gap-2 shadow-lg"
-          >
-            {loading ? <Loader2 className="w-6 h-6 animate-spin" /> : <FileText className="w-6 h-6" />}
-            {loading ? "Analyzing Document..." : "Analyze Resume"}
-          </button>
-
-
-        </div>
-
-        {/* Right Column: AI Feedback Area */}
-        <div className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-3xl shadow-sm overflow-hidden flex flex-col min-h-[500px]">
-          <div className="bg-gray-50 dark:bg-gray-800/50 px-6 py-4 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center">
-            <h3 className="font-bold text-lg">AI Feedback</h3>
-            {loading && <span className="flex items-center gap-2 text-xs font-semibold text-blue-600 bg-blue-100 dark:bg-blue-900/30 px-3 py-1 rounded-full animate-pulse"><Loader2 className="w-3 h-3 animate-spin"/> Processing</span>}
-          </div>
-          
-          <div className="p-6 flex-1 overflow-y-auto bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200 prose prose-blue dark:prose-invert max-w-none prose-p:leading-relaxed prose-headings:font-bold prose-a:text-blue-600">
-            {!feedback && !loading ? (
-              <div className="h-full flex flex-col items-center justify-center text-gray-400 space-y-4 pt-20">
-                <FileText className="w-16 h-16 opacity-20" />
-                <p>Upload a resume and click analyze to see feedback here.</p>
-              </div>
-            ) : (
-              <div className="whitespace-pre-wrap font-sans text-base leading-relaxed">
-                {feedback}
-              </div>
-            )}
-          </div>
-          
-          {analysisComplete && (
-            <div className="bg-blue-50 dark:bg-blue-900/10 p-4 border-t border-blue-100 dark:border-blue-900/30 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="bg-blue-600 p-2 rounded-full text-white">
-                  <Sparkles className="w-5 h-5" />
+          {/* Right Column: AI Feedback Area (col-span-7) */}
+          <div className="lg:col-span-7 flex flex-col h-full">
+            <div className="bg-white dark:bg-[#131B2C] border border-gray-200 dark:border-gray-800 rounded-3xl shadow-sm flex flex-col flex-1 relative overflow-hidden transition-all min-h-[600px]">
+              
+              <div className="bg-gray-50 dark:bg-[#1A233A] px-8 py-5 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center z-10">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center">
+                    <Sparkles className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+                  </div>
+                  <h3 className="font-extrabold text-lg">AI Feedback</h3>
                 </div>
-                <div>
-                  <h4 className="font-bold text-blue-900 dark:text-blue-100 text-sm">Update Profile?</h4>
-                  <p className="text-xs text-blue-700 dark:text-blue-300">We can auto-fill your Experience, Education, and Skills using AI.</p>
-                </div>
+                {loading && (
+                  <span className="flex items-center gap-2 text-xs font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 px-4 py-1.5 rounded-full border border-indigo-100 dark:border-indigo-800/50">
+                    <div className="w-2 h-2 rounded-full bg-indigo-500 animate-ping"></div> Processing...
+                  </span>
+                )}
               </div>
-              <button 
-                onClick={handleAutoFillProfile}
-                disabled={extracting}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-lg font-semibold text-sm transition-colors flex items-center gap-2 shadow-sm"
-              >
-                {extracting ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
-                {extracting ? "Extracting..." : "Auto-Fill Profile"}
-              </button>
+              
+              <div className="p-8 flex-1 overflow-y-auto bg-white dark:bg-[#131B2C] text-gray-800 dark:text-gray-300 relative z-0">
+                
+                {/* Background Pattern when empty */}
+                {!feedback && !loading && (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-400 dark:text-gray-600 p-8 text-center bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] bg-repeat opacity-50 dark:opacity-10 mix-blend-multiply dark:mix-blend-screen pointer-events-none">
+                  </div>
+                )}
+                
+                {!feedback && !loading ? (
+                  <div className="h-full flex flex-col items-center justify-center text-gray-400 dark:text-gray-500 space-y-6 relative z-10 animate-in fade-in duration-700">
+                    <div className="w-24 h-24 rounded-3xl bg-gray-50 dark:bg-gray-800 border-2 border-dashed border-gray-200 dark:border-gray-700 flex items-center justify-center transform rotate-6">
+                      <FileText className="w-10 h-10 text-gray-300 dark:text-gray-600" />
+                    </div>
+                    <div className="space-y-2">
+                      <p className="text-xl font-bold text-gray-900 dark:text-white text-center">Awaiting Resume</p>
+                      <p className="text-center max-w-sm">Upload a document and hit analyze to generate your personalized action plan.</p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="font-sans text-base leading-relaxed animate-in fade-in duration-300">
+                    {loading && !feedback ? (
+                      <div className="space-y-4 pt-4">
+                        <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded-full w-3/4 animate-pulse"></div>
+                        <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded-full w-1/2 animate-pulse"></div>
+                        <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded-full w-5/6 animate-pulse"></div>
+                        <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded-full w-2/3 animate-pulse"></div>
+                        <div className="h-32 bg-gray-100 dark:bg-gray-800/50 rounded-xl w-full animate-pulse mt-8"></div>
+                      </div>
+                    ) : (
+                      <div className="prose prose-lg prose-indigo dark:prose-invert max-w-none 
+                        prose-headings:font-extrabold prose-headings:tracking-tight 
+                        prose-h2:text-2xl prose-h2:border-b prose-h2:border-gray-100 dark:prose-h2:border-gray-800 prose-h2:pb-3 prose-h2:mt-8
+                        prose-p:text-gray-600 dark:prose-p:text-gray-300
+                        prose-li:text-gray-600 dark:prose-li:text-gray-300 prose-li:marker:text-indigo-500
+                        prose-strong:text-gray-900 dark:prose-strong:text-white prose-strong:font-bold
+                        whitespace-pre-wrap">
+                        {feedback}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+              
+              {analysisComplete && (
+                <div className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 p-6 border-t border-indigo-100 dark:border-indigo-900/50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 z-10">
+                  <div className="flex items-center gap-4">
+                    <div className="bg-gradient-to-br from-indigo-500 to-purple-500 p-3 rounded-2xl text-white shadow-lg shadow-indigo-500/20">
+                      <Sparkles className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <h4 className="font-extrabold text-indigo-900 dark:text-indigo-100 text-lg">Auto-Fill Profile</h4>
+                      <p className="text-sm text-indigo-700 dark:text-indigo-300 font-medium mt-0.5">We can extract your skills and experience to update your profile automatically.</p>
+                    </div>
+                  </div>
+                  <button 
+                    onClick={handleAutoFillProfile}
+                    disabled={extracting}
+                    className="w-full sm:w-auto px-6 py-3 bg-white dark:bg-[#131B2C] hover:bg-gray-50 dark:hover:bg-gray-800 border border-indigo-200 dark:border-indigo-800 disabled:opacity-50 text-indigo-700 dark:text-indigo-400 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-sm hover:shadow-md whitespace-nowrap"
+                  >
+                    {extracting ? <Loader2 className="w-5 h-5 animate-spin" /> : <ArrowRight className="w-5 h-5" />}
+                    {extracting ? "Extracting..." : "Update My Profile"}
+                  </button>
+                </div>
+              )}
             </div>
-          )}
+          </div>
         </div>
       </div>
     </div>
